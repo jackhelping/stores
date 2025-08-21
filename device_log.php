@@ -13,14 +13,39 @@ function getUserIP() {
 $ip = getUserIP();
 $fingerprint = isset($_POST['fingerprint']) ? $_POST['fingerprint'] : 'unknown';
 
-// توليد معرف الجهاز (يمكن دمج IP + fingerprint ثم عمل هاش)
+// توليد معرف الجهاز
 $device_id = hash('sha256', $ip . '-' . $fingerprint . '-' . $_SERVER['HTTP_USER_AGENT']);
 
-// تخزين البيانات في ملف نصي (يمكنك تغييره إلى قاعدة بيانات)
-$logLine = date('Y-m-d H:i:s') . " | IP: $ip | Fingerprint: $fingerprint | DeviceID: $device_id | UA: " . $_SERVER['HTTP_USER_AGENT'] . PHP_EOL;
-file_put_contents("device_log.txt", $logLine, FILE_APPEND);
+// ملف التخزين
+$logFile = "device_log.txt";
+$alreadyExists = false;
 
-// استجابة عادية
+// فحص هل الجهاز موجود سابقًا
+if (file_exists($logFile)) {
+    $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, $device_id) !== false) {
+            $alreadyExists = true;
+            break;
+        }
+    }
+}
+
+// لو موجود، نرفض الطلب
+if ($alreadyExists) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        "status" => "blocked",
+        "message" => "تم رفض الطلب: نفس الجهاز سبق له الطلب."
+    ]);
+    exit;
+}
+
+// إذا جديد → نسجله
+$logLine = date('Y-m-d H:i:s') . " | IP: $ip | Fingerprint: $fingerprint | DeviceID: $device_id | UA: " . $_SERVER['HTTP_USER_AGENT'] . PHP_EOL;
+file_put_contents($logFile, $logLine, FILE_APPEND);
+
+// الرد بالقبول
 header('Content-Type: application/json');
 echo json_encode([
     "status" => "ok",
