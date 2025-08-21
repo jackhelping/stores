@@ -40,7 +40,6 @@ $logFile = __DIR__ . "/device_log.txt";
     });
   });
 
-
   // دالة تسجيل الجهاز في ملف PHP (GET بسيط)
   function registerDevice(device_id, fingerprint, ip){
     fetch("<?php echo basename(__FILE__); ?>?save=" + device_id +
