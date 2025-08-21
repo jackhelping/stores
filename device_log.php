@@ -1,54 +1,28 @@
-<?php
-// الحصول على IP
-function getUserIP() {
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        return $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        return explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
-    } else {
-        return $_SERVER['REMOTE_ADDR'];
-    }
-}
+$isDuplicate = false;
 
-$ip = getUserIP();
-$fingerprint = isset($_POST['fingerprint']) ? $_POST['fingerprint'] : 'unknown';
-
-// توليد معرف الجهاز
-$device_id = hash('sha256', $ip . '-' . $fingerprint . '-' . $_SERVER['HTTP_USER_AGENT']);
-
-// ملف التخزين
-$logFile = "device_log.txt";
-$alreadyExists = false;
-
-// فحص هل الجهاز موجود سابقًا
 if (file_exists($logFile)) {
     $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         if (strpos($line, $device_id) !== false) {
-            $alreadyExists = true;
+            $isDuplicate = true;   // ← هنا الشرط
             break;
         }
     }
 }
 
-// لو موجود، نرفض الطلب
-if ($alreadyExists) {
-    header('Content-Type: application/json');
+if ($isDuplicate) {
+    // نفس الجهاز طلب من قبل → إشعار مكرر
     echo json_encode([
-        "status" => "blocked",
-        "message" => "تم رفض الطلب: نفس الجهاز سبق له الطلب."
+        "status" => "duplicate",
+        "device_id" => $device_id
     ]);
-    exit;
+} else {
+    // تسجيل الطلب لأول مرة
+    $logLine = date('Y-m-d H:i:s') . " | IP: $ip | Fingerprint: $fingerprint | DeviceID: $device_id" . PHP_EOL;
+    file_put_contents($logFile, $logLine, FILE_APPEND);
+    
+    echo json_encode([
+        "status" => "ok",
+        "device_id" => $device_id
+    ]);
 }
-
-// إذا جديد → نسجله
-$logLine = date('Y-m-d H:i:s') . " | IP: $ip | Fingerprint: $fingerprint | DeviceID: $device_id | UA: " . $_SERVER['HTTP_USER_AGENT'] . PHP_EOL;
-file_put_contents($logFile, $logLine, FILE_APPEND);
-
-// الرد بالقبول
-header('Content-Type: application/json');
-echo json_encode([
-    "status" => "ok",
-    "device_id" => $device_id
-]);
-?>
