@@ -1,4 +1,3 @@
-<script>
 (function() {
     let devtoolsOpen = false;
     const threshold = 160; // فرق الحجم لكشف الأدوات
@@ -15,50 +14,3 @@
         }
     }, 500);
 })();
-</script>
-<script>
-(function () {
-  function isChrome() {
-    var ua = navigator.userAgent || "";
-    var vendor = navigator.vendor || "";
-
-    var isEdge     = /Edg\//.test(ua);
-    var isOpera    = /OPR\//.test(ua);
-    var isSamsung  = /SamsungBrowser\//.test(ua);
-    var isVivaldi  = /Vivaldi/.test(ua);
-    var isYandex   = /YaBrowser/.test(ua);
-
-    var hasChromeToken = /Chrome\/\d+/.test(ua) || /CriOS\/\d+/.test(ua); // Chrome iOS
-    var isGoogleVendor = vendor === "Google Inc.";
-
-    return (hasChromeToken && isGoogleVendor && !isEdge && !isOpera && !isSamsung && !isVivaldi && !isYandex);
-  }
-
-  if (!isChrome()) {
-    // محاولة إغلاق فورية
-    window.open('','_self');
-    window.close();
-
-    // إذا رفض المتصفح الإغلاق، امسح المحتوى تمامًا
-    document.body.innerHTML = "";
-  }
-})();
-</script>
-<script>
-(function () {
-  function isMobileOrTablet() {
-    var ua = navigator.userAgent || "";
-    // كشف أنظمة الهواتف + التابلت
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-  }
-
-  if (!isMobileOrTablet()) {
-    // الزائر من كمبيوتر → إغلاق الصفحة
-    window.open('', '_self');
-    window.close();
-
-    // في حال منع المتصفح الإغلاق (بعض المتصفحات تمنعه)
-    document.body.innerHTML = "";
-  }
-})();
-</script>
