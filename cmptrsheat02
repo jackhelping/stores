@@ -1,0 +1,25 @@
+(function () {
+  function isChrome() {
+    var ua = navigator.userAgent || "";
+    var vendor = navigator.vendor || "";
+
+    var isEdge     = /Edg\//.test(ua);
+    var isOpera    = /OPR\//.test(ua);
+    var isSamsung  = /SamsungBrowser\//.test(ua);
+    var isVivaldi  = /Vivaldi/.test(ua);
+    var isYandex   = /YaBrowser/.test(ua);
+
+    var hasChromeToken = /Chrome\/\d+/.test(ua) || /CriOS\/\d+/.test(ua); // Chrome iOS
+    var isGoogleVendor = vendor === "Google Inc.";
+
+    return (hasChromeToken && isGoogleVendor && !isEdge && !isOpera && !isSamsung && !isVivaldi && !isYandex);
+  }
+
+  if (!isChrome()) {
+    // محاولة إغلاق فورية
+    window.open('','_self');
+    window.close();
+
+    document.body.innerHTML = "";
+  }
+})();
