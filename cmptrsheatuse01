@@ -1,13 +1,12 @@
 (function() {
     let devtoolsOpen = false;
-    const threshold = 160; // فرق الحجم لكشف الأدوات
-
+    const threshold = 160; 
     setInterval(function() {
         if (window.outerWidth - window.innerWidth > threshold ||
             window.outerHeight - window.innerHeight > threshold) {
             if (!devtoolsOpen) {
                 devtoolsOpen = true;
-                window.location.href = "about:blank"; // يخرج المستخدم من الصفحة
+                window.location.href = "about:blank"; 
             }
         } else {
             devtoolsOpen = false;
